@@ -10,7 +10,6 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "wrangler d1 migrations apply blog-db --local",
     "db:migrate:prod": "wrangler d1 migrations apply blog-db --remote",
-    "deploy": "wrangler pages deploy ./out",
     "create-admin": "npx tsx scripts/create-admin.ts"
   },
   "dependencies": {
