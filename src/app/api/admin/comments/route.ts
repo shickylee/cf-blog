@@ -85,7 +85,7 @@ export async function PUT(request: NextRequest): Promise<Response> {
         return errorResponse('缺少评论ID', 400)
       }
 
-      const body = await request.json()
+      const body = await request.json() as { status?: string }
       const { status } = body
 
       if (!status || !['pending', 'approved', 'rejected'].includes(status)) {
