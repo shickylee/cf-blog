@@ -5,9 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:cloudflare": "next build && npx @opennextjs/cloudflare build",
+    "build:pages": "next build",
+    "build:workers": "next build && npx @opennextjs/cloudflare build",
     "start": "next start",
-    "deploy": "npx @opennextjs/cloudflare deploy",
+    "deploy:pages": "echo 'Use Cloudflare Pages GitHub integration'",
+    "deploy:workers": "npx @opennextjs/cloudflare deploy",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "db:migrate": "wrangler d1 migrations apply blog-db --local",
