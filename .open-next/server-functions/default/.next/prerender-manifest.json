@@ -1,31 +1,6 @@
 {
   "version": 4,
   "routes": {
-    "/_not-found": {
-      "initialStatus": 404,
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/_not-found",
-      "dataRoute": "/_not-found.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
     "/robots.txt": {
       "initialHeaders": {
         "cache-control": "public, max-age=0, must-revalidate",
@@ -79,7 +54,8 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/posts": {
+    "/_not-found": {
+      "initialStatus": 404,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -92,8 +68,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/posts",
-      "dataRoute": "/posts.rsc",
+      "srcRoute": "/_not-found",
+      "dataRoute": "/_not-found.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -118,6 +94,30 @@
       "initialRevalidateSeconds": false,
       "srcRoute": "/login",
       "dataRoute": "/login.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+    "/posts": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/posts",
+      "dataRoute": "/posts.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -155,8 +155,8 @@
   "dynamicRoutes": {},
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "e425437cf801e003535dbcfe610c77a6",
-    "previewModeSigningKey": "7e0a7c67e18eba2803454bdd8c5478444f7bd340d66fd8d13522aad0d44cb2c1",
-    "previewModeEncryptionKey": "5fce29ef2510ee4965a14e3ed4e3d35c56af3a860614773df7a813a6f1daacb4"
+    "previewModeId": "0b962e54c673fd219186342e1d8eb52b",
+    "previewModeSigningKey": "3c05cfb6ae3143f3588de4f226413e71590d49c587b05a6c607ab72993773eac",
+    "previewModeEncryptionKey": "fe139054eda41dd4b66963af5734a0ef2babd1ad1e0b19dbae12b3c60e5e9316"
   }
 }

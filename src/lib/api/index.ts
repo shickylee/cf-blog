@@ -16,9 +16,19 @@ function getLocalDB() {
 }
 
 export function getEnv(): Env {
+  console.log('=== GETENV DEBUG ===')
+  console.log('NODE_ENV:', process.env.NODE_ENV)
+  console.log('isLocal:', isLocal)
+
   // Try to get Cloudflare environment from context first
   const cloudflareContext = (globalThis as any)[Symbol.for('__cloudflare-context__')]
+  console.log('Cloudflare context exists:', !!cloudflareContext)
+  console.log('Cloudflare env exists:', !!cloudflareContext?.env)
+  
   if (cloudflareContext?.env?.DB) {
+    console.log('Using Cloudflare environment')
+    console.log('DB binding:', !!cloudflareContext.env.DB)
+    console.log('JWT_SECRET exists:', !!cloudflareContext.env.JWT_SECRET)
     return {
       DB: cloudflareContext.env.DB as D1Database,
       R2: cloudflareContext.env.R2 as R2Bucket,
@@ -31,6 +41,7 @@ export function getEnv(): Env {
 
   // Fallback to local development
   if (isLocal) {
+    console.log('Using local development environment')
     const localDb = getLocalDB()
     if (localDb) {
       return {
@@ -45,6 +56,7 @@ export function getEnv(): Env {
   }
 
   // Fallback to process.env for compatibility
+  console.log('Using process.env fallback')
   return {
     DB: process.env.DB as unknown as D1Database,
     R2: process.env.R2 as unknown as R2Bucket,

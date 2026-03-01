@@ -4,12 +4,12 @@
        case 1344: b(require("./chunks/1344.js")); break;
        case 14: b(require("./chunks/14.js")); break;
        case 2084: b(require("./chunks/2084.js")); break;
-       case 2763: b(require("./chunks/2763.js")); break;
        case 2783: b(require("./chunks/2783.js")); break;
        case 4631: b(require("./chunks/4631.js")); break;
        case 5097: b(require("./chunks/5097.js")); break;
        case 5262: b(require("./chunks/5262.js")); break;
        case 6731: b(require("./chunks/6731.js")); break;
+       case 6981: b(require("./chunks/6981.js")); break;
        case 92: b(require("./chunks/92.js")); break;
        case 937: b(require("./chunks/937.js")); break;
        case 7311: a[d] = 1; break;

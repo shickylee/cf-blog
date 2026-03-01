@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST='{"app/(admin)/admin/posts/[id]/page.tsx -> @uiw/react-md-editor":{"id":9291,"files":["static/css/c7c5e8ad1e475882.css","static/chunks/9291.65cbbef9817c78c5.js"]},"app/(admin)/admin/posts/new/page.tsx -> @uiw/react-md-editor":{"id":9291,"files":["static/css/c7c5e8ad1e475882.css","static/chunks/9291.65cbbef9817c78c5.js"]}}';
