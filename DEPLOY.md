@@ -19,7 +19,9 @@
 
 ### 4. 配置 GitHub 集成
 
-#### 方法 A：使用 GitHub 集成（推荐）
+#### 方法 A：使用 Cloudflare Workers（推荐）
+
+**重要：本项目是 Cloudflare Workers 项目，不是 Pages 项目！**
 
 1. 点击 **Settings** 标签
 2. 点击 **Sources**
@@ -28,14 +30,35 @@
 5. 授权 Cloudflare 访问您的仓库
 6. 选择 `gogcat/cf-blog` 仓库
 7. 选择 `main` 分支
-8. 点击 **Save and Deploy**
+8. 配置构建设置：
+   - **Build command**: `pnpm run build:workers`
+   - **Build output directory**: `.open-next`
+9. 点击 **Save and Deploy**
 
 Cloudflare 会自动：
 - 拉取最新代码
 - 构建项目
 - 部署到 Workers
 
-#### 方法 B：手动上传（如果 GitHub 集成不可用）
+#### 方法 B：使用 Cloudflare Pages（备选）
+
+如果 Workers 部署不可用，可以使用 Pages：
+
+1. 进入 **Workers & Pages** → **Pages**
+2. 点击 **Create application**
+3. 点击 **Connect to Git**
+4. 选择 **GitHub**
+5. 选择 `gogcat/cf-blog` 仓库
+6. 配置构建设置：
+   - **Project name**: `cf-blog-pages`
+   - **Production branch**: `main`
+   - **Framework preset**: `None`
+   - **Build command**: `pnpm run build:workers`
+   - **Build output directory**: `.open-next`
+   - **Root directory**: `/`
+7. 点击 **Save and Deploy**
+
+#### 方法 C：手动上传（如果 GitHub 集成不可用）
 
 1. 点击 **Settings** 标签
 2. 点击 **Sources**
