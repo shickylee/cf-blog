@@ -329,7 +329,7 @@ export default function PostDetailPage() {
     if (post?.id) {
       fetchComments()
     }
-  }, [post?.id])
+  }, [post?.id, fetchComments])
 
   const fetchComments = useCallback(async () => {
     if (!post?.id) return
