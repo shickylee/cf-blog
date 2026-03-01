@@ -19,5 +19,11 @@
       "binding": "CACHE",
       "id": "0c9eed35a1954f1cb055b01faaea6c67"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "R2",
+      "bucket_name": "r2-cf"
+    }
   ]
 }
