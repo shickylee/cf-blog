@@ -89,8 +89,7 @@ export default function NewPostPage() {
       const data = await res.json() as { success: boolean; data?: { url: string }; error?: string }
 
       if (data.success && data.data?.url) {
-        const imageMarkdown = `![${file.name}](${data.data.url})`
-        setContent(prev => prev + '\n' + imageMarkdown)
+        setCoverImage(data.data.url)
       } else {
         setError(data.error || '上传图片失败')
       }
