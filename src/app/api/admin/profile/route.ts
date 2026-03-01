@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withRole } from '@/lib/api'
+import { hashPassword } from '@/lib/auth/password'
 import type { User } from '@/types'
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
@@ -28,19 +29,22 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
         console.log('Querying user password from database...')
         const userRecord: any = await env.DB.prepare(
-          'SELECT password FROM users WHERE id = ?'
+          'SELECT password_hash FROM users WHERE id = ?'
         ).bind(user.id).first()
 
         console.log('User record found:', !!userRecord)
+        console.log('Stored password hash:', userRecord?.password_hash?.substring(0, 20) + '...')
 
         if (!userRecord) {
           console.log('User not found')
           return NextResponse.json({ success: false, error: '用户不存在' }, { status: 404 })
         }
 
-        console.log('Comparing passwords...')
-        const bcrypt = await import('bcryptjs')
-        const validPassword = await bcrypt.compare(currentPassword, userRecord.password)
+        console.log('Hashing current password for verification...')
+        const currentPasswordHash = await hashPassword(currentPassword)
+        console.log('Computed current password hash:', currentPasswordHash.substring(0, 20) + '...')
+
+        const validPassword = currentPasswordHash === userRecord.password_hash
         
         console.log('Password valid:', validPassword)
         
@@ -50,11 +54,12 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         }
 
         console.log('Hashing new password...')
-        const hashedPassword = await bcrypt.hash(newPassword, 10)
+        const hashedPassword = await hashPassword(newPassword)
+        console.log('New password hash:', hashedPassword.substring(0, 20) + '...')
         
         console.log('Updating user with new password...')
         await env.DB.prepare(
-          'UPDATE users SET name = ?, email = ?, avatar_url = ?, password = ?, updated_at = ? WHERE id = ?'
+          'UPDATE users SET name = ?, email = ?, avatar_url = ?, password_hash = ?, updated_at = ? WHERE id = ?'
         ).bind(name || user.name, email || user.email, avatar_url || user.avatar_url, hashedPassword, new Date().toISOString(), user.id).run()
         
         console.log('Password update successful')
