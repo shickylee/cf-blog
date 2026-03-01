@@ -325,12 +325,6 @@ export default function PostDetailPage() {
     }
   }, [slug, checkAuth, fetchPost])
 
-  useEffect(() => {
-    if (post?.id) {
-      fetchComments()
-    }
-  }, [post?.id, fetchComments])
-
   const fetchComments = useCallback(async () => {
     if (!post?.id) return
     try {
@@ -346,6 +340,12 @@ export default function PostDetailPage() {
       console.error('Failed to fetch comments:', err)
     }
   }, [post?.id])
+
+  useEffect(() => {
+    if (post?.id) {
+      fetchComments()
+    }
+  }, [post?.id, fetchComments])
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
