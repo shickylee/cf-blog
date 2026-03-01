@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -283,20 +283,7 @@ export default function PostDetailPage() {
   const [guestName, setGuestName] = useState('')
   const [guestEmail, setGuestEmail] = useState('')
 
-  useEffect(() => {
-    checkAuth()
-    if (slug) {
-      fetchPost(slug)
-    }
-  }, [slug])
-
-  useEffect(() => {
-    if (post?.id) {
-      fetchComments()
-    }
-  }, [post?.id])
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const res = await fetch('/api/auth/me')
       const data = await res.json() as { success: boolean; data: { user: User }; error?: string }
@@ -307,9 +294,9 @@ export default function PostDetailPage() {
     } catch {
       setIsLoggedIn(false)
     }
-  }
+  }, [])
 
-  const fetchPost = async (postSlug: string) => {
+  const fetchPost = useCallback(async (postSlug: string) => {
     try {
       setLoading(true)
       const res = await fetch(`/api/posts/${postSlug}`)
@@ -329,9 +316,22 @@ export default function PostDetailPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const fetchComments = async () => {
+  useEffect(() => {
+    checkAuth()
+    if (slug) {
+      fetchPost(slug)
+    }
+  }, [slug, checkAuth, fetchPost])
+
+  useEffect(() => {
+    if (post?.id) {
+      fetchComments()
+    }
+  }, [post?.id])
+
+  const fetchComments = useCallback(async () => {
     if (!post?.id) return
     try {
       const res = await fetch(`/api/comments/posts/${post.id}`)
@@ -345,7 +345,7 @@ export default function PostDetailPage() {
     } catch (err) {
       console.error('Failed to fetch comments:', err)
     }
-  }
+  }, [post?.id])
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
