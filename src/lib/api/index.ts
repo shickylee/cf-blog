@@ -36,6 +36,7 @@ export function getEnv(): Env {
       RESEND_API_KEY: cloudflareContext.env.RESEND_API_KEY || '',
       SITE_URL: cloudflareContext.env.SITE_URL || 'http://localhost:3000',
       SITE_NAME: cloudflareContext.env.SITE_NAME || 'My Blog',
+      R2_PUBLIC_URL: cloudflareContext.env.R2_PUBLIC_URL,
     }
   }
 

@@ -44,7 +44,12 @@ export async function POST(request: NextRequest): Promise<Response> {
           contentType: file.type,
         },
       })
-      imageUrl = `/assets/${filename}`
+      
+      if (env.R2_PUBLIC_URL) {
+        imageUrl = `${env.R2_PUBLIC_URL}/${filename}`
+      } else {
+        imageUrl = `/assets/${filename}`
+      }
     } else {
       const fs = await import('fs')
       const path = await import('path')

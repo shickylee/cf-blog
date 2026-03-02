@@ -142,5 +142,6 @@ export interface Env {
   RESEND_API_KEY?: string
   SITE_URL: string
   SITE_NAME: string
+  R2_PUBLIC_URL?: string
   request?: Request
 }
