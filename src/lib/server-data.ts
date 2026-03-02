@@ -1,5 +1,5 @@
 import { getEnv } from '@/lib/api'
-import type { Post, Comment as CommentType } from '@/types'
+import type { Post, Comment as CommentType, PostListItem } from '@/types'
 
 export interface Pagination {
   page: number
@@ -13,7 +13,7 @@ export async function getPosts(page = 1, limit = 10, filters?: {
   category?: string
   tag?: string
   authorId?: string
-}): Promise<{ posts: Post[]; pagination: Pagination }> {
+}): Promise<{ posts: PostListItem[]; pagination: Pagination }> {
   try {
     const env = getEnv()
     
@@ -53,7 +53,7 @@ export async function getPosts(page = 1, limit = 10, filters?: {
     
     const result = await env.DB.prepare(`
       SELECT 
-        p.id, p.title, p.slug, p.content, p.excerpt, p.cover_image, 
+        p.id, p.title, p.slug, p.excerpt, p.cover_image, 
         p.author_id, p.category_id, p.status, p.view_count, p.published_at,
         p.created_at, p.updated_at,
         u.id as author_id, u.name as author_name, u.avatar_url as author_avatar,
@@ -66,7 +66,7 @@ export async function getPosts(page = 1, limit = 10, filters?: {
       LIMIT ? OFFSET ?
     `).bind(...params, limit, offset).all()
     
-    const posts: Post[] = []
+    const posts: PostListItem[] = []
     
     for (const row of result.results) {
       const tagsResult = await env.DB.prepare(`
@@ -80,7 +80,6 @@ export async function getPosts(page = 1, limit = 10, filters?: {
         id: (row as { id: string }).id,
         title: (row as { title: string }).title,
         slug: (row as { slug: string }).slug,
-        content: (row as { content: string }).content,
         excerpt: (row as { excerpt: string }).excerpt,
         cover_image: (row as { cover_image: string }).cover_image,
         author_id: (row as { author_id: string }).author_id,

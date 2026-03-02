@@ -3,41 +3,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Post, CategoryGroup } from '@/types'
+import { Container } from '@/components/ui/container'
+import type { PostListItem, CategoryGroup } from '@/types'
 
 interface PostListClientProps {
-  initialPosts: Post[]
+  initialPosts: PostListItem[]
   initialHasMore: boolean
-}
-
-function extractFirstImage(content: string): string | null {
-  if (!content) return null
-  
-  const imgRegex = /!\[.*?\]\((.*?)\)/g
-  const match = imgRegex.exec(content)
-  if (match && match[1]) {
-    return match[1]
-  }
-  
-  const htmlImgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/g
-  const htmlMatch = htmlImgRegex.exec(content)
-  if (htmlMatch && htmlMatch[1]) {
-    return htmlMatch[1]
-  }
-  
-  return null
-}
-
-function extractExcerpt(content: string, maxLength: number = 150): string {
-  if (!content) return ''
-  
-  let text = content.replace(/!\[.*?\]\(.*?\)/g, '')
-  text = text.replace(/<[^>]+>/g, '')
-  text = text.replace(/[#*_`~]/g, '')
-  text = text.replace(/\n+/g, ' ').trim()
-  
-  if (text.length <= maxLength) return text
-  return text.substring(0, maxLength) + '...'
 }
 
 function formatDate(dateString: string): string {
@@ -54,7 +25,7 @@ export default function PostListClient({ initialPosts, initialHasMore }: PostLis
   const [loadingMore, setLoadingMore] = useState(false)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(initialHasMore)
-  const [allPosts, setAllPosts] = useState<Post[]>(initialPosts)
+  const [allPosts, setAllPosts] = useState<PostListItem[]>(initialPosts)
   const loaderRef = useRef<HTMLDivElement>(null)
 
   const fetchPosts = useCallback(async (pageNum: number) => {
@@ -65,7 +36,7 @@ export default function PostListClient({ initialPosts, initialHasMore }: PostLis
       const data = await res.json() as { 
         success: boolean 
         data: { 
-          posts: Post[] 
+          posts: PostListItem[] 
           pagination: { page: number; limit: number; total: number; total_pages: number }
         }
       }
@@ -86,7 +57,7 @@ export default function PostListClient({ initialPosts, initialHasMore }: PostLis
     }
   }, [allPosts])
 
-  const groupPostsByCategory = (posts: Post[]): CategoryGroup[] => {
+  const groupPostsByCategory = (posts: PostListItem[]): CategoryGroup[] => {
     const categoryMap = new Map<string, CategoryGroup>()
     
     posts.forEach(post => {
@@ -132,15 +103,15 @@ export default function PostListClient({ initialPosts, initialHasMore }: PostLis
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4">
+        <Container>
           <div className="py-16 text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">文章归档</h1>
             <p className="text-gray-600">探索所有文章，按分类浏览</p>
           </div>
-        </div>
+        </Container>
       </div>
 
-      <div className="container mx-auto px-4">
+      <Container>
         <div className="py-12 pb-24">
           {categoryGroups.length > 0 ? (
             <>
@@ -161,8 +132,8 @@ export default function PostListClient({ initialPosts, initialHasMore }: PostLis
                     
                     <div className="grid gap-6">
                       {category.posts.map((post) => {
-                        const firstImage = post.cover_image || extractFirstImage(post.content)
-                        const excerpt = post.excerpt || extractExcerpt(post.content, 150)
+                        const firstImage = post.cover_image || null
+                        const excerpt = post.excerpt || ''
                         const postUrl = post.slug ? `/posts/${post.slug}` : `/posts/${post.id}`
                         
                         return (
@@ -254,7 +225,7 @@ export default function PostListClient({ initialPosts, initialHasMore }: PostLis
             </div>
           )}
         </div>
-      </div>
+      </Container>
     </div>
   )
 }

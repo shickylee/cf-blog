@@ -18,6 +18,25 @@ export interface Post {
   tags?: { id: string; name: string; slug: string }[]
 }
 
+export interface PostListItem {
+  id: string
+  title: string
+  slug: string
+  excerpt: string | null
+  cover_image: string | null
+  author_id: string
+  category_id: string | null
+  status: string
+  view_count: number
+  published_at: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  author?: { id: string; name: string; avatar_url: string | null }
+  category?: { id: string; name: string; slug: string } | null
+  tags?: { id: string; name: string; slug: string }[]
+}
+
 export interface Category {
   id: string
   name: string
@@ -39,7 +58,7 @@ export interface Tag {
 export interface CategoryGroup {
   name: string
   slug: string
-  posts: Post[]
+  posts: PostListItem[]
 }
 
 export interface Comment {

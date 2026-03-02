@@ -3,43 +3,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Post } from '@/types'
+import { Container } from '@/components/ui/container'
+import type { PostListItem } from '@/types'
 
 interface HomePageClientProps {
-  initialPosts: Post[]
+  initialPosts: PostListItem[]
   initialHasMore: boolean
   siteTitle: string
   siteSubtitle: string
-}
-
-function extractFirstImage(content: string): string | null {
-  if (!content) return null
-  
-  const imgRegex = /!\[.*?\]\((.*?)\)/g
-  const match = imgRegex.exec(content)
-  if (match && match[1]) {
-    return match[1]
-  }
-  
-  const htmlImgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/g
-  const htmlMatch = htmlImgRegex.exec(content)
-  if (htmlMatch && htmlMatch[1]) {
-    return htmlMatch[1]
-  }
-  
-  return null
-}
-
-function extractExcerpt(content: string, maxLength: number = 200): string {
-  if (!content) return ''
-  
-  let text = content.replace(/!\[.*?\]\(.*?\)/g, '')
-  text = text.replace(/<[^>]+>/g, '')
-  text = text.replace(/[#*_`~]/g, '')
-  text = text.replace(/\n+/g, ' ').trim()
-  
-  if (text.length <= maxLength) return text
-  return text.substring(0, maxLength) + '...'
 }
 
 function formatDate(dateString: string): string {
@@ -52,11 +23,11 @@ function formatDate(dateString: string): string {
 }
 
 export default function HomePageClient({ initialPosts, initialHasMore, siteTitle, siteSubtitle }: HomePageClientProps) {
-  const [posts, setPosts] = useState<Post[]>(initialPosts)
+  const [posts, setPosts] = useState<PostListItem[]>(initialPosts)
+  const [hasMore, setHasMore] = useState(initialHasMore)
   const [loadingMore, setLoadingMore] = useState(false)
   const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(initialHasMore)
-  const [error, setError] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const loaderRef = useRef<HTMLDivElement>(null)
 
   const fetchPosts = useCallback(async (pageNum: number) => {
@@ -67,7 +38,7 @@ export default function HomePageClient({ initialPosts, initialHasMore, siteTitle
       const data = await res.json() as { 
         success: boolean 
         data: { 
-          posts: Post[] 
+          posts: PostListItem[] 
           pagination: { page: number; limit: number; total: number; total_pages: number }
         }
         error?: string 
@@ -108,15 +79,15 @@ export default function HomePageClient({ initialPosts, initialHasMore, siteTitle
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4">
+        <Container>
           <div className="py-16 text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">{siteTitle}</h1>
             <p className="text-gray-600">{siteSubtitle}</p>
           </div>
-        </div>
+        </Container>
       </div>
 
-      <div className="container mx-auto px-4">
+      <Container>
         <div className="py-12">
           {error && (
             <div className="mb-8 p-4 bg-red-50 text-red-600 rounded-lg text-center">
@@ -128,8 +99,8 @@ export default function HomePageClient({ initialPosts, initialHasMore, siteTitle
             <>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {posts.map((post) => {
-                  const firstImage = post.cover_image || extractFirstImage(post.content)
-                  const excerpt = post.excerpt || extractExcerpt(post.content, 200)
+                  const firstImage = post.cover_image || null
+                  const excerpt = post.excerpt || ''
                   const postUrl = post.slug ? `/posts/${post.slug}` : `/posts/${post.id}`
                   
                   return (
@@ -211,7 +182,7 @@ export default function HomePageClient({ initialPosts, initialHasMore, siteTitle
             </div>
           )}
         </div>
-      </div>
+      </Container>
     </div>
   )
 }

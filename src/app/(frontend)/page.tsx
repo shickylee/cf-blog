@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import HomePageClient from '@/components/home-client'
 import { getPosts, getSettings } from '@/lib/server-data'
+import type { PostListItem } from '@/types'
 
 export async function generateMetadata(): Promise<Metadata> {
   try {

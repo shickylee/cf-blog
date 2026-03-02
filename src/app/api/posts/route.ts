@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { getEnv, successResponse, errorResponse, withAuth, withRole } from '@/lib/api'
 import { generateUUID, generateSlug, extractExcerpt } from '@/lib/utils'
 import { z } from 'zod'
-import type { User, Post, Category, Tag } from '@/types'
+import type { User, Post, Category, Tag, PostListItem } from '@/types'
 
 const createPostSchema = z.object({
   title: z.string().min(1).max(200),
@@ -15,6 +15,12 @@ const createPostSchema = z.object({
 })
 
 interface PostWithRelations extends Post {
+  author?: { id: string; name: string; avatar_url: string | null }
+  category?: Category | null
+  tags?: Tag[]
+}
+
+interface PostListItemWithRelations extends PostListItem {
   author?: { id: string; name: string; avatar_url: string | null }
   category?: Category | null
   tags?: Tag[]
@@ -69,7 +75,7 @@ export async function GET(request: NextRequest): Promise<Response> {
     
     const result = await env.DB.prepare(`
       SELECT 
-        p.id, p.title, p.slug, p.content, p.excerpt, p.cover_image, 
+        p.id, p.title, p.slug, p.excerpt, p.cover_image, 
         p.author_id, p.category_id, p.status, p.view_count, p.published_at,
         p.created_at, p.updated_at,
         u.id as author_id, u.name as author_name, u.avatar_url as author_avatar,
@@ -82,7 +88,7 @@ export async function GET(request: NextRequest): Promise<Response> {
       LIMIT ? OFFSET ?
     `).bind(...params, limit, offset).all()
     
-    const posts: PostWithRelations[] = []
+    const posts: PostListItemWithRelations[] = []
     
     for (const row of result.results) {
       const tagsResult = await env.DB.prepare(`
@@ -96,7 +102,6 @@ export async function GET(request: NextRequest): Promise<Response> {
         id: (row as { id: string }).id,
         title: (row as { title: string }).title,
         slug: (row as { slug: string }).slug,
-        content: (row as { content: string }).content,
         excerpt: (row as { excerpt: string }).excerpt,
         cover_image: (row as { cover_image: string }).cover_image,
         author_id: (row as { author_id: string }).author_id,
