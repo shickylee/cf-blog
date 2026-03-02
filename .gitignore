@@ -64,3 +64,4 @@ Thumbs.db
 
 # Wrangler configuration (contains sensitive data)
 wrangler.jsonc
+wrangler.toml
