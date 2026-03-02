@@ -65,3 +65,13 @@ Thumbs.db
 # Wrangler configuration (contains sensitive data)
 wrangler.jsonc
 wrangler.toml
+
+# Local environment files
+.env
+.dev.vars
+
+# Cloudflare Pages build script (not needed for local deployment)
+.cloudflare-pages-build.sh
+
+# User uploaded assets (should be in R2)
+public/assets/*
