@@ -57,6 +57,11 @@ export async function generateMetadata(): Promise<Metadata> {
       description: siteSettings.site_description,
       type: 'website',
     },
+    twitter: {
+      card: 'summary',
+      title: siteSettings.site_name,
+      description: siteSettings.site_description,
+    },
   }
 }
 
