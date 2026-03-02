@@ -7,10 +7,6 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  "vars": {
-    "SITE_URL": "https://your-worker-name.workers.dev",
-    "SITE_NAME": "My Blog"
-  },
   "d1_databases": [
     {
       "binding": "DB",

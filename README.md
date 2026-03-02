@@ -105,18 +105,11 @@ cp wrangler.jsonc.example wrangler.jsonc
 - `id` (KV namespace) - 必须替换为你的 KV 命名空间 ID
 - `bucket_name` - 可以自定义，但必须在 Cloudflare 中创建对应的 R2 存储桶
 
-**环境变量（可选）**：
+**环境变量配置**：
 
-```jsonc
-{
-  "vars": {
-    "SITE_URL": "https://your-worker-name.workers.dev",
-    "SITE_NAME": "My Blog"
-  }
-}
-```
+环境变量（`SITE_URL`、`SITE_NAME` 等）**不在 `wrangler.jsonc` 中设置**，而是在 Cloudflare Dashboard 中配置。
 
-这些环境变量也可以在 Cloudflare Dashboard 中设置，不需要在 `wrangler.jsonc` 中修改。
+**原因**：`wrangler.jsonc` 中的 `vars` 会覆盖 Dashboard 中的环境变量设置，导致无法灵活修改。
 
 ### 4. 初始化数据库
 

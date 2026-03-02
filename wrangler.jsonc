@@ -7,10 +7,6 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  "vars": {
-    "SITE_URL": "https://cf-blog.sticky-lee.workers.dev",
-    "SITE_NAME": "CF Blog"
-  },
   "d1_databases": [
     {
       "binding": "DB",
