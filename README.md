@@ -63,6 +63,16 @@ npx wrangler kv:namespace create CACHE
 
 ### 3. 更新配置
 
+**⚠️ 重要：本项目包含 `wrangler.jsonc`（作者配置）和 `wrangler.jsonc.example`（示例配置）**
+
+**对于 fork 用户**：
+1. 复制 `wrangler.jsonc.example` 为 `wrangler.jsonc`
+2. 修改 `wrangler.jsonc` 中的资源绑定 ID
+
+```bash
+cp wrangler.jsonc.example wrangler.jsonc
+```
+
 编辑 `wrangler.jsonc`，替换相关 ID：
 
 ```jsonc

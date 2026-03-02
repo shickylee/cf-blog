@@ -8,20 +8,20 @@
     "binding": "ASSETS"
   },
   "vars": {
-    "SITE_URL": "https://cf-blog.sticky-lee.workers.dev",
-    "SITE_NAME": "CF Blog"
+    "SITE_URL": "https://your-worker-name.workers.dev",
+    "SITE_NAME": "My Blog"
   },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "cf-db",
-      "database_id": "46b7eee9-0dcb-4f88-9295-f9c807237238"
+      "database_id": "YOUR_D1_DATABASE_ID"
     }
   ],
   "kv_namespaces": [
     {
       "binding": "CACHE",
-      "id": "0c9eed35a1954f1cb055b01faaea6c67"
+      "id": "YOUR_KV_NAMESPACE_ID"
     }
   ],
   "r2_buckets": [
