@@ -131,7 +131,14 @@ pnpm dev
 
 ### 6. 部署到 Cloudflare Workers
 
-**⚠️ 重要：本项目是 Cloudflare Workers 项目，不是 Cloudflare Pages 项目！**
+**⚠️ 重要：本项目必须使用本地 wrangler 部署，不支持 Cloudflare Dashboard 的 GitHub 集成！**
+
+#### 为什么必须使用本地部署？
+
+1. **配置保密**：`wrangler.jsonc` 包含敏感配置信息（database_id、KV namespace id 等），不应提交到 GitHub
+2. **避免冲突**：使用本地部署可以避免 fork 用户的配置被作者更新覆盖
+3. **灵活更新**：用户可以自主选择何时更新到最新版本，不会被强制更新
+4. **最佳实践**：这是开源项目的推荐做法
 
 #### 部署步骤：
 
@@ -156,9 +163,12 @@ pnpm deploy
 - 部署成功后会显示 Worker URL，例如：`https://cf-blog.sticky-lee.workers.dev`
 - `wrangler.jsonc` 中的 D1、KV、R2 绑定会自动应用到 Worker
 
-#### 不要使用以下命令（错误）：
+#### 不要使用以下方式（错误）：
 
 ```bash
+# ❌ 错误：不要使用 Cloudflare Dashboard 的 GitHub 集成
+# 因为 wrangler.jsonc 不会提交到 GitHub，自动部署会失败
+
 # ❌ 错误：不要使用 pages deploy
 npx wrangler pages deploy .open-next --project-name=cf-blog
 ```
