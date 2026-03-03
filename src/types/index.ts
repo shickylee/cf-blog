@@ -14,7 +14,7 @@ export interface Post {
   updated_at: string
   deleted_at: string | null
   author?: { id: string; name: string; avatar_url: string | null }
-  category?: { id: string; name: string; slug: string } | null
+  category?: { id: string; name: string; slug: string; icon?: string } | null
   tags?: { id: string; name: string; slug: string }[]
 }
 
@@ -33,7 +33,7 @@ export interface PostListItem {
   updated_at: string
   deleted_at: string | null
   author?: { id: string; name: string; avatar_url: string | null }
-  category?: { id: string; name: string; slug: string } | null
+  category?: { id: string; name: string; slug: string; icon?: string } | null
   tags?: { id: string; name: string; slug: string }[]
 }
 
@@ -42,6 +42,7 @@ export interface Category {
   name: string
   slug: string
   description?: string
+  icon?: string
   sort_order?: number
   created_at: string
   updated_at: string
@@ -58,6 +59,7 @@ export interface Tag {
 export interface CategoryGroup {
   name: string
   slug: string
+  icon?: string
   posts: PostListItem[]
 }
 

@@ -7,12 +7,28 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { FolderOpen, BookOpen, Code, Lightbulb, Camera, Music, Globe, Heart, Star, Rocket, Paintbrush } from 'lucide-react'
+
+const CATEGORY_ICONS = [
+  { value: 'folder', icon: FolderOpen, label: '文件夹', color: 'from-primary-500 to-primary-600' },
+  { value: 'book-open', icon: BookOpen, label: '技术', color: 'from-blue-500 to-blue-600' },
+  { value: 'code', icon: Code, label: '编程', color: 'from-gray-500 to-gray-600' },
+  { value: 'lightbulb', icon: Lightbulb, label: '创意', color: 'from-yellow-500 to-yellow-600' },
+  { value: 'camera', icon: Camera, label: '摄影', color: 'from-pink-500 to-pink-600' },
+  { value: 'music', icon: Music, label: '音乐', color: 'from-purple-500 to-purple-600' },
+  { value: 'globe', icon: Globe, label: '互联网', color: 'from-cyan-500 to-cyan-600' },
+  { value: 'heart', icon: Heart, label: '生活', color: 'from-red-500 to-red-600' },
+  { value: 'star', icon: Star, label: '收藏', color: 'from-orange-500 to-orange-600' },
+  { value: 'rocket', icon: Rocket, label: '科技', color: 'from-indigo-500 to-indigo-600' },
+  { value: 'paintbrush', icon: Paintbrush, label: '设计', color: 'from-green-500 to-green-600' },
+]
 
 interface Category {
   id: string
   name: string
   slug: string
   description: string | null
+  icon: string
   sort_order: number
   created_at: string
 }
@@ -24,7 +40,7 @@ export default function AdminCategoriesPage() {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
-  const [formData, setFormData] = useState({ name: '', slug: '', description: '', sort_order: 0 })
+  const [formData, setFormData] = useState({ name: '', slug: '', description: '', icon: 'folder', sort_order: 0 })
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
@@ -56,11 +72,12 @@ export default function AdminCategoriesPage() {
         name: category.name,
         slug: category.slug,
         description: category.description || '',
+        icon: category.icon || 'folder',
         sort_order: category.sort_order
       })
     } else {
       setEditingCategory(null)
-      setFormData({ name: '', slug: '', description: '', sort_order: 0 })
+      setFormData({ name: '', slug: '', description: '', icon: 'folder', sort_order: 0 })
     }
     setIsDialogOpen(true)
   }
@@ -68,7 +85,7 @@ export default function AdminCategoriesPage() {
   const handleCloseDialog = () => {
     setIsDialogOpen(false)
     setEditingCategory(null)
-    setFormData({ name: '', slug: '', description: '', sort_order: 0 })
+    setFormData({ name: '', slug: '', description: '', icon: 'folder', sort_order: 0 })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -162,6 +179,9 @@ export default function AdminCategoriesPage() {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      图标
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       名称
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -179,8 +199,16 @@ export default function AdminCategoriesPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {categories.map((category) => (
+                  {categories.map((category) => {
+                    const iconData = CATEGORY_ICONS.find(i => i.value === (category.icon || 'folder')) || CATEGORY_ICONS[0]
+                    const IconComponent = iconData.icon
+                    return (
                     <tr key={category.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${iconData.color} flex items-center justify-center`}>
+                          <IconComponent className="w-5 h-5 text-white" />
+                        </div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">{category.name}</div>
                       </td>
@@ -210,7 +238,8 @@ export default function AdminCategoriesPage() {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                    )
+                  })}
                 </tbody>
               </table>
             ) : (
@@ -249,6 +278,33 @@ export default function AdminCategoriesPage() {
                   placeholder="留空则根据名称自动生成"
                   className="mt-1"
                 />
+              </div>
+              
+              <div>
+                <Label>图标</Label>
+                <div className="mt-2 grid grid-cols-6 gap-2">
+                  {CATEGORY_ICONS.map((item) => {
+                    const IconComponent = item.icon
+                    const isSelected = formData.icon === item.value
+                    return (
+                      <button
+                        key={item.value}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, icon: item.value })}
+                        className={`p-2 rounded-lg flex flex-col items-center gap-1 transition-all ${
+                          isSelected 
+                            ? 'ring-2 ring-primary-500 bg-primary-50' 
+                            : 'hover:bg-gray-100'
+                        }`}
+                      >
+                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${item.color} flex items-center justify-center shadow-md`}>
+                          <IconComponent className="w-5 h-5 text-white" />
+                        </div>
+                        <span className="text-xs text-gray-600">{item.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
               
               <div>

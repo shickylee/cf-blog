@@ -8,6 +8,7 @@ const createCategorySchema = z.object({
   name: z.string().min(1).max(100),
   slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/).optional().or(z.literal('')),
   description: z.string().max(500).optional(),
+  icon: z.string().max(50).optional(),
   sort_order: z.number().int().optional(),
 })
 
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest): Promise<Response> {
           validationResult.error.flatten().fieldErrors as Record<string, string[]>)
       }
       
-      const { name, slug, description, sort_order } = validationResult.data
+      const { name, slug, description, icon, sort_order } = validationResult.data
       const categorySlug = slug || generateSlug(name)
       
       const existing = await env.DB.prepare(
@@ -51,9 +52,9 @@ export async function POST(request: NextRequest): Promise<Response> {
       const now = new Date().toISOString()
       
       await env.DB.prepare(`
-        INSERT INTO categories (id, name, slug, description, sort_order, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `).bind(id, name, categorySlug, description || null, sort_order || 0, now, now).run()
+        INSERT INTO categories (id, name, slug, description, icon, sort_order, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(id, name, categorySlug, description || null, icon || 'folder', sort_order || 0, now, now).run()
       
       const category = await env.DB.prepare(
         'SELECT * FROM categories WHERE id = ?'

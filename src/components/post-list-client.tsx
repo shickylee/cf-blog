@@ -7,6 +7,25 @@ import Image from 'next/image'
 import { Container } from '@/components/ui/container'
 import SearchBox from '@/components/search-box'
 import type { PostListItem, CategoryGroup } from '@/types'
+import { FolderOpen, BookOpen, Code, Lightbulb, Camera, Music, Globe, Heart, Star, Rocket, Paintbrush } from 'lucide-react'
+
+const CATEGORY_ICON_MAP: Record<string, { icon: typeof FolderOpen; color: string }> = {
+  'folder': { icon: FolderOpen, color: 'from-primary-500 to-primary-600' },
+  'book-open': { icon: BookOpen, color: 'from-blue-500 to-blue-600' },
+  'code': { icon: Code, color: 'from-gray-500 to-gray-600' },
+  'lightbulb': { icon: Lightbulb, color: 'from-yellow-500 to-yellow-600' },
+  'camera': { icon: Camera, color: 'from-pink-500 to-pink-600' },
+  'music': { icon: Music, color: 'from-purple-500 to-purple-600' },
+  'globe': { icon: Globe, color: 'from-cyan-500 to-cyan-600' },
+  'heart': { icon: Heart, color: 'from-red-500 to-red-600' },
+  'star': { icon: Star, color: 'from-orange-500 to-orange-600' },
+  'rocket': { icon: Rocket, color: 'from-indigo-500 to-indigo-600' },
+  'paintbrush': { icon: Paintbrush, color: 'from-green-500 to-green-600' },
+}
+
+function getCategoryIcon(iconName: string) {
+  return CATEGORY_ICON_MAP[iconName] || CATEGORY_ICON_MAP['folder']
+}
 
 interface PostListClientProps {
   initialPosts: PostListItem[]
@@ -69,11 +88,13 @@ export default function PostListClient({ initialPosts, initialHasMore }: PostLis
     posts.forEach(post => {
       const categoryName = post.category?.name || '未分类'
       const categorySlug = post.category?.slug || 'uncategorized'
+      const categoryIcon = post.category?.icon || 'folder'
       
       if (!categoryMap.has(categoryName)) {
         categoryMap.set(categoryName, {
           name: categoryName,
           slug: categorySlug,
+          icon: categoryIcon,
           posts: []
         })
       }
@@ -142,11 +163,15 @@ export default function PostListClient({ initialPosts, initialHasMore }: PostLis
                 {categoryGroups.map((category) => (
                   <section key={category.name} className="relative">
                     <div className="flex items-center gap-4 mb-8">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/30">
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
-                      </div>
+                      {(() => {
+                        const iconData = getCategoryIcon(category.icon || 'folder')
+                        const IconComponent = iconData.icon
+                        return (
+                          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${iconData.color} flex items-center justify-center shadow-lg shadow-primary-500/30`}>
+                            <IconComponent className="w-6 h-6 text-white" />
+                          </div>
+                        )
+                      })()}
                       <div>
                         <h2 className="text-2xl font-bold text-gray-900">{category.name}</h2>
                         <p className="text-gray-500 text-sm">{category.posts.length} 篇文章</p>

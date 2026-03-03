@@ -8,6 +8,7 @@ const updateCategorySchema = z.object({
   name: z.string().min(1).max(100).optional(),
   slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/).optional(),
   description: z.string().max(500).nullable().optional(),
+  icon: z.string().max(50).optional(),
   sort_order: z.number().int().optional(),
 })
 
@@ -61,7 +62,7 @@ export async function PUT(
         return errorResponse('分类不存在', 404, 'NOT_FOUND')
       }
       
-      const { name, slug, description, sort_order } = validationResult.data
+      const { name, slug, description, icon, sort_order } = validationResult.data
       const updates: string[] = []
       const values: unknown[] = []
       
@@ -85,6 +86,11 @@ export async function PUT(
       if (description !== undefined) {
         updates.push('description = ?')
         values.push(description)
+      }
+      
+      if (icon !== undefined) {
+        updates.push('icon = ?')
+        values.push(icon)
       }
       
       if (sort_order !== undefined) {

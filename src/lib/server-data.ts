@@ -64,7 +64,7 @@ export async function getPosts(page = 1, limit = 10, filters?: {
         p.author_id, p.category_id, p.status, p.view_count, p.published_at,
         p.created_at, p.updated_at,
         u.id as author_id, u.name as author_name, u.avatar_url as author_avatar,
-        c.id as category_id, c.name as category_name, c.slug as category_slug
+        c.id as category_id, c.name as category_name, c.slug as category_slug, c.icon as category_icon
       FROM posts p
       LEFT JOIN users u ON p.author_id = u.id
       LEFT JOIN categories c ON p.category_id = c.id
@@ -106,6 +106,7 @@ export async function getPosts(page = 1, limit = 10, filters?: {
           id: (row as { category_id: string }).category_id,
           name: (row as { category_name: string }).category_name,
           slug: (row as { category_slug: string }).category_slug,
+          icon: (row as { category_icon: string }).category_icon || 'folder',
         } : null,
         tags: tagsResult.results,
       })
@@ -138,7 +139,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
         p.author_id, p.category_id, p.status, p.view_count, p.published_at,
         p.created_at, p.updated_at,
         u.id as author_id, u.name as author_name, u.avatar_url as author_avatar,
-        c.id as category_id, c.name as category_name, c.slug as category_slug
+        c.id as category_id, c.name as category_name, c.slug as category_slug, c.icon as category_icon
       FROM posts p
       LEFT JOIN users u ON p.author_id = u.id
       LEFT JOIN categories c ON p.category_id = c.id
@@ -180,6 +181,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
         id: (result as { category_id: string }).category_id,
         name: (result as { category_name: string }).category_name,
         slug: (result as { category_slug: string }).category_slug,
+        icon: (result as { category_icon: string }).category_icon || 'folder',
       } : null,
       tags: tagsResult.results,
     }
