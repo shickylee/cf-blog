@@ -116,6 +116,7 @@ export default function FriendsPage() {
                   >
                     <div className="flex items-start gap-3">
                       {link.logo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img src={link.logo} alt={link.name} className="w-10 h-10 rounded object-cover" />
                       ) : (
                         <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">

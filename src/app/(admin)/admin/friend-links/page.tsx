@@ -234,6 +234,7 @@ export default function AdminFriendLinksPage() {
                 <div key={link.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-4">
                     {link.logo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img src={link.logo} alt={link.name} className="w-10 h-10 rounded object-cover" />
                     ) : (
                       <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
@@ -292,6 +293,7 @@ export default function AdminFriendLinksPage() {
                 <div key={link.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-4">
                     {link.logo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img src={link.logo} alt={link.name} className="w-10 h-10 rounded object-cover" />
                     ) : (
                       <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
