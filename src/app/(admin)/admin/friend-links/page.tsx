@@ -109,16 +109,18 @@ export default function AdminFriendLinksPage() {
         .find(row => row.startsWith('access_token='))
         ?.split('=')[1]
 
+      const isEdit = !!editingLink?.id
       const res = await fetch('/api/admin/friend-links', {
-        method: 'PUT',
+        method: isEdit ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
-        body: JSON.stringify({
-          id: editingLink?.id,
-          ...formData
-        })
+        body: JSON.stringify(
+          isEdit
+            ? { id: editingLink.id, ...formData }
+            : formData
+        )
       })
       const data = await res.json() as { success: boolean; error?: string }
 

@@ -39,6 +39,49 @@ export async function GET(request: NextRequest): Promise<Response> {
   })
 }
 
+export async function POST(request: NextRequest): Promise<Response> {
+  return withRole(request, ['admin'], async (user: User, env) => {
+    try {
+      const body = await request.json() as {
+        name: string
+        url: string
+        description?: string
+        logo?: string
+        contact_email?: string
+        status?: 'pending' | 'approved' | 'rejected'
+        sort_order?: number
+      }
+      
+      const { name, url, description, logo, contact_email, status, sort_order } = body
+      
+      if (!name || !url) {
+        return errorResponse('Name and URL are required', 400)
+      }
+      
+      try {
+        new URL(url)
+      } catch {
+        return errorResponse('Invalid URL format', 400)
+      }
+      
+      const id = generateUUID()
+      await env.DB.prepare(`
+        INSERT INTO friend_links (id, name, url, description, logo, contact_email, status, sort_order)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(id, name, url, description || '', logo || '', contact_email || '', status || 'pending', sort_order || 0).run()
+      
+      const newLink = await env.DB.prepare(
+        'SELECT * FROM friend_links WHERE id = ?'
+      ).bind(id).first()
+      
+      return successResponse({ friendLink: newLink }, 201)
+    } catch (error) {
+      console.error('Create friend link error:', error)
+      return errorResponse('Failed to create friend link', 500)
+    }
+  })
+}
+
 export async function PUT(request: NextRequest): Promise<Response> {
   return withRole(request, ['admin'], async (user: User, env) => {
     try {
