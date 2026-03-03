@@ -93,7 +93,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       }
     }
   } catch (error) {
-    console.error('Error fetching post for metadata:', error)
   }
   
   return {
