@@ -82,7 +82,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
           type: 'article',
           publishedTime: post.published_at,
           authors: [post.author?.name || ''].filter(Boolean),
-          images: post.cover_image ? [post.cover_image] : [],
+          images: post.cover_image ? [{ url: post.cover_image, width: 1200, height: 630 }] : [],
         },
         twitter: {
           card: 'summary_large_image',
