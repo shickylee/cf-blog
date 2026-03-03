@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
+import { useToast } from '@/components/toast'
 
 const MDEditor = dynamic(
   () => import('@uiw/react-md-editor'),
@@ -29,6 +30,7 @@ interface Tag {
 
 export default function NewPostPage() {
   const router = useRouter()
+  const { showToast } = useToast()
   const [title, setTitle] = useState('')
   const [slug, setSlug] = useState('')
   const [content, setContent] = useState('')
@@ -194,12 +196,13 @@ export default function NewPostPage() {
       const data = await res.json() as { success: boolean; error?: string }
 
       if (data.success) {
-        router.push('/admin/posts')
+        showToast('文章创建成功', 'success')
+        setTimeout(() => router.push('/admin/posts'), 1000)
       } else {
-        setError(data.error || '创建文章失败')
+        showToast(data.error || '创建文章失败', 'error')
       }
     } catch {
-      setError('创建文章失败，请稍后重试')
+      showToast('创建文章失败，请稍后重试', 'error')
     } finally {
       setSubmitting(false)
     }
