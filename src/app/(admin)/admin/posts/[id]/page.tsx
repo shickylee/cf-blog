@@ -30,6 +30,7 @@ interface Tag {
 interface Post {
   id: string
   title: string
+  slug: string
   content: string
   excerpt: string | null
   cover_image: string | null
