@@ -56,7 +56,7 @@ export default function AdminFriendLinksPage() {
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         }
       })
-      const data = await res.json()
+      const data = await res.json() as { success: boolean; data: { friendLinks: FriendLink[] } }
       if (data.success) {
         setFriendLinks(data.data.friendLinks || [])
       }
@@ -120,7 +120,7 @@ export default function AdminFriendLinksPage() {
           ...formData
         })
       })
-      const data = await res.json()
+      const data = await res.json() as { success: boolean; error?: string }
 
       if (data.success) {
         handleCloseDialog()
@@ -152,7 +152,7 @@ export default function AdminFriendLinksPage() {
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         }
       })
-      const data = await res.json()
+      const data = await res.json() as { success: boolean; error?: string }
 
       if (data.success) {
         fetchFriendLinks()
@@ -181,7 +181,7 @@ export default function AdminFriendLinksPage() {
         },
         body: JSON.stringify({ id, status })
       })
-      const data = await res.json()
+      const data = await res.json() as { success: boolean; error?: string }
 
       if (data.success) {
         fetchFriendLinks()
