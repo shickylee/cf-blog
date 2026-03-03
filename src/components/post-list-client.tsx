@@ -52,11 +52,8 @@ export default function PostListClient({ initialPosts, initialHasMore }: PostLis
       
       if (data.success) {
         const newPosts = data.data.posts || []
-        const updatedPosts = [...allPosts, ...newPosts]
-        setAllPosts(updatedPosts)
         
-        const grouped = groupPostsByCategory(updatedPosts)
-        setCategoryGroups(grouped)
+        setAllPosts(prevPosts => [...prevPosts, ...newPosts])
         
         setHasMore(pageNum < data.data.pagination.total_pages)
         setPage(pageNum)
@@ -64,7 +61,7 @@ export default function PostListClient({ initialPosts, initialHasMore }: PostLis
     } finally {
       setLoadingMore(false)
     }
-  }, [allPosts])
+  }, [])
 
   const groupPostsByCategory = (posts: PostListItem[]): CategoryGroup[] => {
     const categoryMap = new Map<string, CategoryGroup>()
@@ -99,7 +96,7 @@ export default function PostListClient({ initialPosts, initialHasMore }: PostLis
     if (allPosts.length === 0 && hasMore) {
       fetchPosts(1, searchKeyword)
     }
-  }, [searchKeyword, allPosts.length, hasMore])
+  }, [searchKeyword, allPosts.length, hasMore, fetchPosts])
 
   useEffect(() => {
     const grouped = groupPostsByCategory(allPosts)
