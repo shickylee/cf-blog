@@ -26,18 +26,18 @@ export default function SearchBox() {
   }
 
   return (
-    <form onSubmit={handleSearch} className="w-full max-w-md">
+    <form onSubmit={handleSearch} className="w-full max-w-md mx-auto">
       <div className="flex gap-2">
         <Input
           type="search"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           placeholder="搜索文章标题、内容..."
-          className="flex-1"
+          className="flex-1 h-10"
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+          className="px-4 h-10 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors whitespace-nowrap flex items-center justify-center"
         >
           搜索
         </button>
