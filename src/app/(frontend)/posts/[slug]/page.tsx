@@ -190,7 +190,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
               )}
             </header>
             
-            <div className="prose prose-lg max-w-none">
+            <div className="text-gray-700 leading-relaxed space-y-4">
               <div dangerouslySetInnerHTML={{ __html: renderContent(post.content) }} />
             </div>
 
