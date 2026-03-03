@@ -31,7 +31,6 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260228.1",
-    "@tailwindcss/typography": "^0.5.10",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.0.0",
     "@types/react": "^18.3.0",
