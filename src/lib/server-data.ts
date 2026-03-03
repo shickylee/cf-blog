@@ -114,7 +114,6 @@ export async function getPosts(page = 1, limit = 10, filters?: {
       },
     }
   } catch (error) {
-    console.error('Get posts error:', error)
     return {
       posts: [],
       pagination: { page, limit, total: 0, total_pages: 1 },
@@ -178,7 +177,6 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
       tags: tagsResult.results,
     }
   } catch (error) {
-    console.error('Get post by slug error:', error)
     return null
   }
 }
@@ -198,7 +196,6 @@ export async function getSettings(): Promise<Record<string, string>> {
     
     return settingsMap
   } catch (error) {
-    console.error('Get settings error:', error)
     return {}
   }
 }
@@ -252,7 +249,6 @@ export async function getCommentsByPostSlug(slug: string): Promise<CommentType[]
     
     return comments
   } catch (error) {
-    console.error('Get comments by post slug error:', error)
     return []
   }
 }
@@ -291,7 +287,6 @@ export async function getCurrentUser(): Promise<User | null> {
     
     return user || null
   } catch (error) {
-    console.error('Get current user error:', error)
     return null
   }
 }

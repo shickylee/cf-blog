@@ -1,70 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyJWT } from '@/lib/auth/jwt'
-import { createDBInterface } from '@/lib/db/local'
 import type { Env, User, ApiResponse } from '@/types'
 
 export { verifyJWT }
 
-const isLocal = process.env.NODE_ENV === 'development'
-
-function getLocalDB() {
-  try {
-    return createDBInterface()
-  } catch {
-    return null
-  }
-}
-
 export function getEnv(): Env {
-  console.log('=== GETENV DEBUG ===')
-  console.log('NODE_ENV:', process.env.NODE_ENV)
-  console.log('isLocal:', isLocal)
-
-  // Try to get Cloudflare environment from context first
   const cloudflareContext = (globalThis as any)[Symbol.for('__cloudflare-context__')]
-  console.log('Cloudflare context exists:', !!cloudflareContext)
-  console.log('Cloudflare env exists:', !!cloudflareContext?.env)
   
-  if (cloudflareContext?.env?.DB) {
-    console.log('Using Cloudflare environment')
-    console.log('DB binding:', !!cloudflareContext.env.DB)
-    console.log('JWT_SECRET exists:', !!cloudflareContext.env.JWT_SECRET)
-    return {
-      DB: cloudflareContext.env.DB as D1Database,
-      R2: cloudflareContext.env.R2 as R2Bucket,
-      JWT_SECRET: cloudflareContext.env.JWT_SECRET || '',
-      RESEND_API_KEY: cloudflareContext.env.RESEND_API_KEY || '',
-      SITE_URL: cloudflareContext.env.SITE_URL || 'http://localhost:3000',
-      SITE_NAME: cloudflareContext.env.SITE_NAME || 'My Blog',
-      R2_PUBLIC_URL: cloudflareContext.env.R2_PUBLIC_URL,
-    }
+  if (!cloudflareContext?.env?.DB) {
+    throw new Error('Cloudflare environment not available. This application must run on Cloudflare Workers.')
   }
-
-  // Fallback to local development
-  if (isLocal) {
-    console.log('Using local development environment')
-    const localDb = getLocalDB()
-    if (localDb) {
-      return {
-        DB: localDb as unknown as D1Database,
-        R2: process.env.R2 as unknown as R2Bucket,
-        JWT_SECRET: process.env.JWT_SECRET || 'dev-secret',
-        RESEND_API_KEY: process.env.RESEND_API_KEY || '',
-        SITE_URL: process.env.SITE_URL || 'http://localhost:3000',
-        SITE_NAME: process.env.SITE_NAME || 'My Blog',
-      }
-    }
-  }
-
-  // Fallback to process.env for compatibility
-  console.log('Using process.env fallback')
+  
   return {
-    DB: process.env.DB as unknown as D1Database,
-    R2: process.env.R2 as unknown as R2Bucket,
-    JWT_SECRET: process.env.JWT_SECRET || '',
-    RESEND_API_KEY: process.env.RESEND_API_KEY || '',
-    SITE_URL: process.env.SITE_URL || 'http://localhost:3000',
-    SITE_NAME: process.env.SITE_NAME || 'My Blog',
+    DB: cloudflareContext.env.DB as D1Database,
+    R2: cloudflareContext.env.R2 as R2Bucket,
+    JWT_SECRET: cloudflareContext.env.JWT_SECRET || '',
+    RESEND_API_KEY: cloudflareContext.env.RESEND_API_KEY || '',
+    SITE_URL: cloudflareContext.env.SITE_URL || 'https://cf-blog.huoli.fun',
+    SITE_NAME: cloudflareContext.env.SITE_NAME || 'My Blog',
+    R2_PUBLIC_URL: cloudflareContext.env.R2_PUBLIC_URL,
   }
 }
 
@@ -152,7 +106,7 @@ export function setAuthCookies(
   
   response.cookies.set('access_token', accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: true,
     sameSite: 'lax',
     maxAge: accessTokenMaxAge,
     path: '/',
@@ -160,7 +114,7 @@ export function setAuthCookies(
   
   response.cookies.set('refresh_token', refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: true,
     sameSite: 'lax',
     maxAge: refreshTokenMaxAge,
     path: '/',
