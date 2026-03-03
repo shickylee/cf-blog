@@ -6,6 +6,7 @@ import type { User, Post, Category, Tag, PostListItem } from '@/types'
 
 const createPostSchema = z.object({
   title: z.string().min(1).max(200),
+  slug: z.string().max(100).regex(/^[a-z0-9-]+$/).optional(),
   content: z.string().min(1),
   excerpt: z.string().max(500).optional(),
   cover_image: z.string().url().nullable().optional(),
@@ -155,15 +156,15 @@ export async function POST(request: NextRequest): Promise<Response> {
           validationResult.error.flatten().fieldErrors as Record<string, string[]>)
       }
       
-      const { title, content, excerpt, cover_image, category_id, tag_ids, status } = validationResult.data
+      const { title, slug: providedSlug, content, excerpt, cover_image, category_id, tag_ids, status } = validationResult.data
       
-      const slug = generateSlug(title)
+      const slug = providedSlug ? providedSlug : generateSlug(title)
       const slugExists = await env.DB.prepare(
         'SELECT id FROM posts WHERE slug = ? AND deleted_at IS NULL'
       ).bind(slug).first()
       
       if (slugExists) {
-        return errorResponse('文章 Slug 已存在，请修改标题', 400, 'SLUG_EXISTS')
+        return errorResponse('文章 Slug 已存在，请使用其他 Slug', 400, 'SLUG_EXISTS')
       }
       
       const id = generateUUID()

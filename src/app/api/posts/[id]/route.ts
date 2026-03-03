@@ -6,6 +6,7 @@ import type { User, Post, Tag } from '@/types'
 
 const updatePostSchema = z.object({
   title: z.string().min(1).max(200).optional(),
+  slug: z.string().max(100).regex(/^[a-z0-9-]+$/).optional(),
   content: z.string().min(1).optional(),
   excerpt: z.string().max(500).optional(),
   cover_image: z.string().url().nullable().optional(),
@@ -119,13 +120,26 @@ export async function PUT(
         return errorResponse('无权编辑此文章', 403, 'FORBIDDEN')
       }
       
-      const { title, content, excerpt, cover_image, category_id, tag_ids, status } = validationResult.data
+      const { title, slug: providedSlug, content, excerpt, cover_image, category_id, tag_ids, status } = validationResult.data
       const updates: string[] = []
       const values: unknown[] = []
       
       if (title !== undefined) {
         updates.push('title = ?')
         values.push(title)
+      }
+      
+      if (providedSlug !== undefined) {
+        const slugExists = await env.DB.prepare(
+          'SELECT id FROM posts WHERE slug = ? AND id != ? AND deleted_at IS NULL'
+        ).bind(providedSlug, id).first()
+        
+        if (slugExists) {
+          return errorResponse('文章 Slug 已存在，请使用其他 Slug', 400, 'SLUG_EXISTS')
+        }
+        
+        updates.push('slug = ?')
+        values.push(providedSlug)
       }
       
       if (content !== undefined) {

@@ -43,6 +43,7 @@ export default function EditPostPage() {
   const postId = params.id as string
 
   const [title, setTitle] = useState('')
+  const [slug, setSlug] = useState('')
   const [content, setContent] = useState('')
   const [excerpt, setExcerpt] = useState('')
   const [coverImage, setCoverImage] = useState('')
@@ -79,6 +80,7 @@ export default function EditPostPage() {
       if (postData.success && postData.data.post) {
         const post = postData.data.post
         setTitle(post.title)
+        setSlug(post.slug || '')
         setContent(post.content)
         setExcerpt(post.excerpt || '')
         setCoverImage(post.cover_image || '')
@@ -203,6 +205,7 @@ export default function EditPostPage() {
         },
         body: JSON.stringify({
           title,
+          slug: slug || undefined,
           content,
           excerpt: excerpt || undefined,
           cover_image: coverImage || null,
@@ -306,6 +309,18 @@ export default function EditPostPage() {
                       required
                       className="mt-1"
                     />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="slug">Slug（可选）</Label>
+                    <Input
+                      id="slug"
+                      value={slug}
+                      onChange={e => setSlug(e.target.value)}
+                      placeholder="留空则自动生成，如：my-article"
+                      className="mt-1"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">用于文章 URL，如：/posts/your-slug</p>
                   </div>
                   
                   <div>
