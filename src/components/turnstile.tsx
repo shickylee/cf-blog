@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 
 interface TurnstileProps {
   siteKey: string
   onSuccess: (token: string) => void
   onError?: () => void
+  trigger?: boolean
 }
 
 declare global {
@@ -15,44 +16,91 @@ declare global {
         sitekey: string
         callback: (token: string) => void
         'error-callback': () => void
-        'expired-callback': () => void
+        'expired-callback'?: () => void
+        theme?: 'light' | 'dark' | 'auto'
       }) => string
       reset: (widgetId: string) => void
+      remove: (widgetId: string) => void
     }
   }
 }
 
-export default function Turnstile({ siteKey, onSuccess, onError }: TurnstileProps) {
+export default function Turnstile({ siteKey, onSuccess, onError, trigger = false }: TurnstileProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [widgetId, setWidgetId] = useState<string | null>(null)
+  const [rendered, setRendered] = useState(false)
+  const onSuccessRef = useRef(onSuccess)
+  const onErrorRef = useRef(onError)
 
   useEffect(() => {
-    const script = document.createElement('script')
-    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js'
-    script.async = true
-    script.defer = true
-    document.body.appendChild(script)
+    onSuccessRef.current = onSuccess
+  }, [onSuccess])
 
-    script.onload = () => {
-      if (window.turnstile && containerRef.current) {
-        const id = window.turnstile.render(containerRef.current, {
+  useEffect(() => {
+    onErrorRef.current = onError
+  }, [onError])
+
+  useEffect(() => {
+    if (!trigger || !containerRef.current || rendered) return
+
+    const container = containerRef.current
+
+    const loadScript = () => {
+      if (container.querySelector('.cf-turnstile')) {
+        setRendered(true)
+        return
+      }
+
+      if (window.turnstile) {
+        window.turnstile.render(container, {
           sitekey: siteKey,
-          callback: onSuccess,
+          callback: (token: string) => {
+            onSuccessRef.current(token)
+          },
           'error-callback': () => {
-            onError?.()
+            onErrorRef.current?.()
           },
           'expired-callback': () => {
-            onError?.()
+            onErrorRef.current?.()
           },
+          theme: 'light',
         })
-        setWidgetId(id)
+        setRendered(true)
+        return
+      }
+
+      if (!document.querySelector('script[src*="turnstile"]')) {
+        const script = document.createElement('script')
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js'
+        script.async = true
+        script.defer = true
+        script.id = 'turnstile-script'
+        document.body.appendChild(script)
+
+        script.onload = () => {
+          if (window.turnstile && container) {
+            window.turnstile.render(container, {
+              sitekey: siteKey,
+              callback: (token: string) => {
+                onSuccessRef.current(token)
+              },
+              'error-callback': () => {
+                onErrorRef.current?.()
+              },
+              'expired-callback': () => {
+                onErrorRef.current?.()
+              },
+              theme: 'light',
+            })
+            setRendered(true)
+          }
+        }
       }
     }
 
-    return () => {
-      document.body.removeChild(script)
-    }
-  }, [siteKey, onSuccess, onError])
+    loadScript()
+  }, [trigger, siteKey, rendered])
+
+  if (!trigger) return null
 
   return <div ref={containerRef} />
 }

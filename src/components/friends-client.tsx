@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { useToast } from '@/components/toast'
 import { Link2, ExternalLink, Loader2, CheckCircle } from 'lucide-react'
 import type { FriendLink } from '@/lib/server-data'
@@ -24,6 +25,7 @@ export default function FriendsPageClient({
   const [friendLinks] = useState<FriendLink[]>(initialFriendLinks)
   const [submitting, setSubmitting] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
+  const [showVerifyDialog, setShowVerifyDialog] = useState(false)
   const { showToast } = useToast()
   
   const [formData, setFormData] = useState({
@@ -37,12 +39,27 @@ export default function FriendsPageClient({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (turnstileSiteKey && !turnstileToken) {
-      showToast('请先完成人机验证', 'error')
+    if (!formData.name.trim()) {
+      showToast('请输入网站名称', 'error')
+      return
+    }
+    if (!formData.url.trim()) {
+      showToast('请输入网站地址', 'error')
       return
     }
     
+    if (turnstileSiteKey) {
+      setTurnstileToken('')
+      setShowVerifyDialog(true)
+      return
+    }
+    
+    await submitForm()
+  }
+
+  const submitForm = async (token?: string) => {
     setSubmitting(true)
+    const finalToken = token || turnstileToken
 
     try {
       const res = await fetch('/api/friend-links', {
@@ -50,7 +67,7 @@ export default function FriendsPageClient({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          'cf-turnstile-response': turnstileToken
+          'cf-turnstile-response': finalToken
         })
       })
       const data = await res.json() as { success: boolean; error?: string }
@@ -205,16 +222,6 @@ export default function FriendsPageClient({
                   />
                 </div>
                 
-                {turnstileSiteKey && (
-                  <div className="flex justify-center">
-                    <Turnstile
-                      siteKey={turnstileSiteKey}
-                      onSuccess={setTurnstileToken}
-                      onError={() => setTurnstileToken('')}
-                    />
-                  </div>
-                )}
-                
                 <Button type="submit" disabled={submitting} className="w-full">
                   {submitting ? (
                     <>
@@ -230,6 +237,27 @@ export default function FriendsPageClient({
           </Card>
         </div>
       </div>
+
+      <Dialog open={showVerifyDialog} onOpenChange={setShowVerifyDialog}>
+        <DialogContent onClose={() => setShowVerifyDialog(false)}>
+          <div className="text-center">
+            <h3 className="text-lg font-medium mb-4">人机验证</h3>
+            <p className="text-sm text-gray-500 mb-4">请完成下方验证后提交友链申请</p>
+            {turnstileSiteKey && (
+              <Turnstile
+                siteKey={turnstileSiteKey}
+                onSuccess={(token) => {
+                  setTurnstileToken(token)
+                  setShowVerifyDialog(false)
+                  submitForm(token)
+                }}
+                onError={() => setTurnstileToken('')}
+                trigger={showVerifyDialog}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </Container>
   )
 }

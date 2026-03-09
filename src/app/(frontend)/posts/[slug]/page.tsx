@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Container } from '@/components/ui/container'
 import CommentSection from '@/components/comment-section'
 import ViewCounter from '@/components/view-counter'
-import { getPostBySlug, getCommentsByPostSlug, getCurrentUser } from '@/lib/server-data'
+import { getPostBySlug, getCommentsByPostSlug, getCurrentUser, getSettings } from '@/lib/server-data'
 
 export const dynamic = 'force-dynamic'
 
@@ -108,6 +108,9 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
   const post = await getPostBySlug(slug)
   const comments = await getCommentsByPostSlug(slug)
   const currentUser = await getCurrentUser()
+  const settings = await getSettings()
+  
+  const turnstileSiteKey = settings.turnstile_site_key
   
   if (!post) {
     notFound()
@@ -218,6 +221,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
             postId={post.id} 
             initialComments={comments} 
             currentUser={currentUser}
+            turnstileSiteKey={turnstileSiteKey}
           />
         </div>
       </Container>

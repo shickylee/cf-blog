@@ -172,3 +172,23 @@ CREATE TABLE IF NOT EXISTS friend_links (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_friend_links_status ON friend_links(status);
+
+-- Friend Link Submissions (for rate limiting)
+CREATE TABLE IF NOT EXISTS friend_link_submissions (
+    id TEXT PRIMARY KEY,
+    ip_address TEXT,
+    cookie_token TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_friend_link_submissions_ip ON friend_link_submissions(ip_address);
+CREATE INDEX IF NOT EXISTS idx_friend_link_submissions_cookie ON friend_link_submissions(cookie_token);
+
+-- Comment Submissions (for rate limiting)
+CREATE TABLE IF NOT EXISTS comment_submissions (
+    id TEXT PRIMARY KEY,
+    ip_address TEXT,
+    cookie_token TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_comment_submissions_ip ON comment_submissions(ip_address);
+CREATE INDEX IF NOT EXISTS idx_comment_submissions_cookie ON comment_submissions(cookie_token);

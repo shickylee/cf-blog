@@ -4,6 +4,8 @@ import { useState, useCallback } from 'react'
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import Turnstile from '@/components/turnstile'
 
 interface User {
   id: string
@@ -27,6 +29,7 @@ interface CommentSectionProps {
   postId: string
   initialComments: Comment[]
   currentUser: User | null
+  turnstileSiteKey?: string
 }
 
 function formatCommentDate(dateString: string): string {
@@ -227,13 +230,15 @@ function CommentItem({
   )
 }
 
-export default function CommentSection({ postId, initialComments, currentUser }: CommentSectionProps) {
+export default function CommentSection({ postId, initialComments, currentUser, turnstileSiteKey }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>(initialComments)
   const [commentContent, setCommentContent] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [commentError, setCommentError] = useState('')
   const [guestName, setGuestName] = useState('')
   const [guestEmail, setGuestEmail] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const [showVerifyDialog, setShowVerifyDialog] = useState(false)
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -302,8 +307,18 @@ export default function CommentSection({ postId, initialComments, currentUser }:
       return
     }
 
+    if (turnstileSiteKey) {
+      setTurnstileToken('')
+      setShowVerifyDialog(true)
+      return
+    }
+
+    await submitGuestComment()
+  }
+
+  const submitGuestComment = async (token?: string) => {
     setSubmitting(true)
-    setCommentError('')
+    const finalToken = token || turnstileToken
 
     try {
       const res = await fetch(`/api/comments/posts/${postId}`, {
@@ -314,7 +329,8 @@ export default function CommentSection({ postId, initialComments, currentUser }:
         body: JSON.stringify({ 
           content: commentContent,
           name: guestName,
-          email: guestEmail
+          email: guestEmail,
+          'cf-turnstile-response': finalToken
         })
       })
 
@@ -324,6 +340,8 @@ export default function CommentSection({ postId, initialComments, currentUser }:
         setCommentContent('')
         setGuestName('')
         setGuestEmail('')
+        setTurnstileToken('')
+        setShowVerifyDialog(false)
         const res = await fetch(`/api/comments/posts/${postId}`)
         const newData = await res.json() as { success: boolean; data: { comments: Comment[] } }
         if (newData.success) {
@@ -331,6 +349,9 @@ export default function CommentSection({ postId, initialComments, currentUser }:
         }
       } else {
         setCommentError(data.error || '发表评论失败')
+        if (data.error?.includes('验证')) {
+          setTurnstileToken('')
+        }
       }
     } catch {
       setCommentError('发表评论失败')
@@ -399,6 +420,7 @@ export default function CommentSection({ postId, initialComments, currentUser }:
             onChange={(e) => setCommentContent(e.target.value)}
             placeholder="写下你的评论..."
             className="min-h-[100px] mb-3"
+            required
           />
           {commentError && (
             <p className="text-red-500 text-sm mb-2">{commentError}</p>
@@ -409,6 +431,27 @@ export default function CommentSection({ postId, initialComments, currentUser }:
           <p className="text-gray-400 text-xs mt-2">发表评论即表示同意展示您的头像</p>
         </form>
       )}
+
+      <Dialog open={showVerifyDialog} onOpenChange={setShowVerifyDialog}>
+        <DialogContent onClose={() => setShowVerifyDialog(false)}>
+          <div className="text-center">
+            <h3 className="text-lg font-medium mb-4">人机验证</h3>
+            <p className="text-sm text-gray-500 mb-4">请完成下方验证后提交评论</p>
+            {turnstileSiteKey && (
+              <Turnstile
+                siteKey={turnstileSiteKey}
+                onSuccess={(token) => {
+                  setTurnstileToken(token)
+                  setShowVerifyDialog(false)
+                  submitGuestComment(token)
+                }}
+                onError={() => setTurnstileToken('')}
+                trigger={showVerifyDialog}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <div className="divide-y divide-gray-100">
         {comments.length > 0 ? (

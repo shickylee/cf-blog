@@ -435,7 +435,7 @@ export default function AdminSettingsPage() {
             </div>
             <div className="pt-6 mt-6 border-t border-gray-200">
               <h4 className="text-lg font-medium text-gray-900 mb-4">Cloudflare Turnstile 验证</h4>
-              <p className="text-sm text-gray-500 mb-4">用于友链申请等表单的机器人验证，可有效防止垃圾提交</p>
+              <p className="text-sm text-gray-500 mb-4">用于Blog前台用户交互时人机验证，有效防止垃圾信息或者恶意提交</p>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Site Key（前端使用）</label>

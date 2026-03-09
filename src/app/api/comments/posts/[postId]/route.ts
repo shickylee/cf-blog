@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
-import { getEnv, successResponse, errorResponse, withAuth } from '@/lib/api'
+import { getEnv, successResponse, errorResponse, withAuth, getClientInfo } from '@/lib/api'
 import { generateUUID } from '@/lib/utils'
+import { verifyTurnstile } from '@/lib/turnstile'
 import { z } from 'zod'
 import type { User } from '@/types'
 import crypto from 'crypto'
@@ -19,6 +20,7 @@ const createGuestCommentSchema = z.object({
   parent_id: z.string().uuid().nullable().optional(),
   name: z.string().min(1).max(50),
   email: z.string().email(),
+  'cf-turnstile-response': z.string().optional(),
 })
 
 interface RouteParams {
@@ -79,6 +81,8 @@ async function getCommentSettings(env: ReturnType<typeof getEnv>) {
   return {
     moderationEnabled: settings.comment_moderation === 'true',
     keywords: settings.comment_keywords || '',
+    turnstileEnabled: !!settings.turnstile_site_key && !!settings.turnstile_secret_key,
+    turnstileSecretKey: settings.turnstile_secret_key || '',
   }
 }
 
@@ -171,8 +175,9 @@ export async function POST(
     const env = getEnv()
     const { postId } = await params
     const body = await request.json()
+    const { ipAddress } = getClientInfo(request)
     
-    const { moderationEnabled, keywords } = await getCommentSettings(env)
+    const { moderationEnabled, keywords, turnstileEnabled, turnstileSecretKey } = await getCommentSettings(env)
     
     const token = request.cookies.get('access_token')?.value || 
                   request.headers.get('authorization')?.replace('Bearer ', '')
@@ -271,6 +276,31 @@ export async function POST(
         }
       })
     } else {
+      const cookieToken = request.cookies.get('comment_token')?.value
+      
+      const existingCount = await env.DB.prepare(`
+        SELECT COUNT(*) as count FROM comment_submissions 
+        WHERE (ip_address = ? OR cookie_token = ?)
+        AND created_at > datetime('now', '-1 day')
+      `).bind(ipAddress || '', cookieToken || '').first<{ count: number }>()
+      
+      if (existingCount && existingCount.count >= 3) {
+        return errorResponse('24小时内评论次数已达上限（3次），请明天再来', 429, 'RATE_LIMITED')
+      }
+      
+      if (turnstileEnabled && turnstileSecretKey) {
+        const turnstileToken = (body as any)['cf-turnstile-response']
+        const isValid = await verifyTurnstile(
+          turnstileToken || '',
+          turnstileSecretKey,
+          ipAddress || undefined
+        )
+        
+        if (!isValid) {
+          return errorResponse('人机验证失败，请重试', 400, 'TURNSTILE_FAILED')
+        }
+      }
+      
       const validationResult = createGuestCommentSchema.safeParse({
         ...(typeof body === 'object' && body !== null ? body : {}),
         post_id: postId
@@ -316,31 +346,15 @@ export async function POST(
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).bind(id, content, postId, null, parent_id || null, status, name, email, now, now).run()
       
+      const submissionId = generateUUID()
+      await env.DB.prepare(`
+        INSERT INTO comment_submissions (id, ip_address, cookie_token, created_at)
+        VALUES (?, ?, ?, datetime('now'))
+      `).bind(submissionId, ipAddress || '', cookieToken || '').run()
+      
       const avatarUrl = getGravatarUrl(email)
       
-      if (status === 'pending') {
-        return successResponse({ 
-          comment: {
-            id,
-            content,
-            post_id: postId,
-            user_id: null,
-            parent_id: parent_id || null,
-            status,
-            created_at: now,
-            updated_at: now,
-            user: {
-              id: `guest-${id}`,
-              name,
-              avatar_url: avatarUrl,
-              email,
-            },
-          },
-          message: '评论已提交，待审核后显示'
-        }, 201)
-      }
-      
-      return successResponse({ 
+      const response = successResponse({ 
         comment: {
           id,
           content,
@@ -356,8 +370,19 @@ export async function POST(
             avatar_url: avatarUrl,
             email,
           },
-        }
+        },
+        message: status === 'pending' ? '评论已提交，待审核后显示' : undefined
       }, 201)
+      
+      response.cookies.set('comment_token', cookieToken || submissionId, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 30,
+        path: '/',
+      })
+      
+      return response
     }
   } catch (error) {
     console.error('Create comment error:', error)
