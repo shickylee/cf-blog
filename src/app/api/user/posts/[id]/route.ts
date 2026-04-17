@@ -109,7 +109,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     await env.DB.prepare(`
       UPDATE posts 
-      SET title = ?, slug = ?, content = ?, excerpt = ?, cover_image = ?, category_id = ?, status = ?, moderation_status = 'pending', published_at = ?, updated_at = ?
+      SET title = ?, slug = ?, content = ?, excerpt = ?, cover_image = ?, category_id = ?, status = ?, published_at = ?, updated_at = ?
       WHERE id = ?
     `).bind(title, newSlug, content, postExcerpt, cover_image || null, category_id || null, postStatus, publishedAt, now, id).run()
 

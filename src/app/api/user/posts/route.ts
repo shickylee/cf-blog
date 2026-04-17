@@ -140,8 +140,8 @@ export async function POST(request: NextRequest): Promise<Response> {
     const publishedAt = postStatus === 'published' ? now : null
     
     await env.DB.prepare(`
-      INSERT INTO posts (id, title, slug, content, excerpt, cover_image, author_id, category_id, status, moderation_status, published_at, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)
+      INSERT INTO posts (id, title, slug, content, excerpt, cover_image, author_id, category_id, status, published_at, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(id, title, slug, content, postExcerpt, cover_image || null, user.id, category_id || null, postStatus, publishedAt, now, now).run()
     
     if (tag_ids && tag_ids.length > 0) {

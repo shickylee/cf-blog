@@ -40,8 +40,8 @@ export async function GET(
       actualId = id
     } else {
       const result = await env.DB.prepare(
-        'SELECT * FROM posts WHERE slug = ? AND status = ? AND moderation_status = ? AND deleted_at IS NULL'
-      ).bind(id, 'published', 'approved').first<Post>()
+        'SELECT * FROM posts WHERE slug = ? AND status = ? AND deleted_at IS NULL'
+      ).bind(id, 'published').first<Post>()
       post = result ?? undefined
       actualId = post?.id || id
     }

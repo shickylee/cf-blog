@@ -51,6 +51,10 @@ next-env.d.ts
 # OpenNext
 .open-next/
 
+# Novel assistant
+.novel-assistant/
+data/
+
 # IDE
 .vscode/
 .idea/
